@@ -1,0 +1,27 @@
+#ignore temporary notebooks
+.ipynb_checkpoints/
+
+#ignore temporary results
+results/
+
+#ignore local saves
+weights/
+my_model/
+
+#ignore dataset
+Development_Dataset/
+
+Notebook/binary_classification_experiments/
+
+Notebook/multiclass_exps/
+
+Notebook/drive/
+
+#ignore TeX auxiliary files
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+
