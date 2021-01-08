@@ -17,6 +17,8 @@ Notebook/multiclass_exps/
 
 Notebook/drive/
 
+VQA_Dataset/
+
 #ignore TeX auxiliary files
 *.aux
 *.log
