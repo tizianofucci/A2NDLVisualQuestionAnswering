@@ -95,9 +95,9 @@ The dataset is composed by 29333 total images, 58832 training questions and 6372
 	\subsection{Images}
 The images' properties are:
 \begin{itemize}
-\item{Color space: RGB;}
+\item{color space: RGB;}
 \item{image size: 400x700 pixels;}
-\item{file Format: png;}
+\item{file format: png;}
 \end{itemize}
 	\subsection{Answers}
 The set of the possible answers is static and made of 58 possible answers belonging to 3 possible categories: 'yes/no' answers, 'counting' answers (from 0 to 5) and 'other' (e.g., colors, objects, ecc.). In the following the labels associated to each answer:
@@ -120,62 +120,50 @@ Submissions are evaluated on Multiclass Accuracy, which is simply the average nu
 	%end of first chapter
 
 	\chapter{Neural network architecture}		
-For all the networks, we have modified the function \texttt{read\_mask\_example}. The modified function can be found into the \texttt{starting\_kit} folder. The notebook expects that folder to be in \texttt{\textbackslash content\textbackslash drive\textbackslash MyDrive}.
-		\section{U-Net}
-Our first try was with U-Net, but the results turned out to be very poor. In particular, the high number of parameters made the tuning very difficult to perform. The training time was simply too much to experience some progress, since it took up to one hour and a half for one epoch. After some epoch, the result was the one shown below. 
+		\section{VGG + LSTM + FFNN}
+At first, we have thought about a network that analyzes in parallel the image and the question, using
+\begin{itemize}
+\item{a convolutional network to extract the features from the images;}
+\item{an LSTM to process the question and extract the hidden state.}
+\end{itemize}
+The two results are merged using a multiplication layer and then they are fed to the feed-forward neural network.
+A GAP layer is used after the CNN to adapt the output shape to the one of the LSTM.
 \begin{figure}[H]
-	\includegraphics[scale = .75, center]{U_Net}
-	\caption{dataset image, target segmentation, actual segmentation}
-\end{figure}
-	
-We tried to change the learning rate, the weights initialization and the loss function, using a weighted one, but the situation remained the same.	
-		
-		\section{Transfer learning with MobileNetV2}
-Then, we tried to use MobileNetV2, as it was suggested by the TensorFlow tutorial. After a while, we noticed that the trained model could not distinguish the maize plants from weeds. The result was a well defined foreground, but with a faded violet, since the two colours were mixed in correspondence of the plant.  This was probably caused by the incompatibility of the weights with non-squared images, as shown by Jupyter in a warning. 
-	
-
-\begin{figure}[H]
-	\includegraphics[scale = 1.2, center]{MobileNetV2}
-	\caption{image segmentation}
-\end{figure}
-
-		\section{U-Net, with VGG as a backbone}
-	\subsection{Without skip connections}
-This architecture is taken from the notebooks seen during the exercise sessions of the course, adapted to this competition.
-After some epochs, the results were similar to the one shown below.
-
-\begin{figure}[H]
-	\includegraphics[scale = .75, center]{vgg_upsampling_without}
-	\caption{image segmentation}
-\end{figure}
-	\subsection{With skip connections}
-\begin{figure}[H]
-	\includegraphics[scale = .45, center]{vgg_model}
-	\caption{network obtained with VGG and skipped connections}
-\end{figure}
-After considering the former architecture, we decided to add skip connections in order to improve the performance of the upsampling layers. This led to a better definition of shapes and leaves and thus to a higher score.
-\begin{figure}[H]
-	\includegraphics[scale = .75, center]{vgg_upsampling_with}
-	\caption{image segmentation}
+\renewcommand*\thesubfigure{\arabic{subfigure}} 
+\centering
+\begin{subfigure}{\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{model}
+  \caption{network architecture}
+  \label{fig:sub1}
+\end{subfigure}
 \end{figure}
 \subsection{Score}
-	The best score of the network was 0.7207, obtained with the skip connections.
+	The best score of the network was 0.66211, obtained with the following settings:
+
+\begin{itemize}
+	\item VGG standard preprocessing;
+	\item \texttt{freeze\_until} = 17;
+	\item learning rate = 5e-4;
+	\item 10\% validation.
+\end{itemize}
 		
 	%end of second chapter
 
-\chapter{Main issues}
-During this competition we had to face problems that didn't occur in the first one: despite we could solve memory capacity issues by tiling the images, the main problem remained time. The classic network tuning procedure has been hardened by the great training time, up to one hour per epoch (obtained with U-Net). Even with the other network architectures, the training time was so long that it took hours, or days, to understand if the network was properly learning the model. This was the main reason because we used the Maize dataset only.
+\chapter{Model tuning}
+Our first network had a bidirectional LSTM and one more hidden layer in the FFNN. We were fine-tuning VGG deeply, but we noticed that the model overfitted rapidly. We thought that adding a dropout layer in the FFNN could be a good idea to avoid that behaviour, but the model kept overfitting after few epochs.
+ So we decided to reduce the model complexity, by removing the hidden layer in the FFNN, moving to a uni-directional LSTM and freezing more layers of VGG.
 
-The tiling procedure took so long (8-10 hours) that we could not make many attempts on how many tiles were better. Furthemore, we had to manually fix the folder structure in the .zip file, since Colab didn't allow us to recreate the original dataset structure.
+Then, we tried to replace VGG with InceptionResNetV2, as it provided better performance in the previous challenges, but in this case, it turned out to be slightly worst than VGG.
 
-Other factors that limited our score were the absence of the last softmax layer and the TensorFlow preprocessing of predictions for VGG, that drastically lowered the performance of the network. We managed to correct these two mistakes just in the last days.
+Since we obtained pretty good results straight from the first tries, we decided not to drastically change the architecture of the network.
 	%end of third chapter
 	\chapter{References}
 		\section{Links}
 
 \begin{itemize}
-	\item GitHub repository of the project: \url{https://github.com/tizianofucci/A2NDLSegmentation}
-	\item Competition web page: \url{https://competitions.codalab.org/competitions/27176}
+	\item GitHub repository of the project: \url{https://github.com/tizianofucci/A2NDLVisualQuestionAnswering}
+	\item Competition web page: \url{https://www.kaggle.com/c/anndl-2020-vqa}
 \end{itemize}
 
 \end{document}
