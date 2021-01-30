@@ -75,65 +75,35 @@ contents}}
 	\tableofcontents
 	\chapter{Introduction}
 		\section{Description of the task}
-			The homework consists in an image segmentation problem on the proposed dataset. In particular, it is required to segment RGB images to distinguish between crop, weeds, and background, as done in the following example.
+			The homework consists in solving a visual question answering (VQA) problem on the proposed dataset. The dataset is composed by synthetic scenes (see example below), in which people and objects interact, and by corresponding questions, which are about the content of the images. Given an image and a question, the goal is to provide the correct answer.
 
 \begin{figure}[H]
 \renewcommand*\thesubfigure{\arabic{subfigure}} 
 \centering
-\begin{subfigure}{.45\textwidth}
+\begin{subfigure}{.75\textwidth}
   \centering
   \includegraphics[width=1\linewidth]{image0}
-  \caption{dataset image}
+  \caption{\textbf{Q}: Is the man's shirt blue? \textbf{A}: Yes}
   \label{fig:sub1}
-\end{subfigure}
-\begin{subfigure}{.45\textwidth}
-  \centering
-  \includegraphics[width=1\linewidth]{image1}
-  \caption{segmented image}
-  \label{fig:sub2}
-\end{subfigure}
+\end{subfigure}\
 \end{figure}
 
-The competition is public and  organized by the ACRE (Agri-food Competition for Robot Evaluation).
+\section{Dataset}
+The dataset is composed by 29333 total images, 58832 training questions and 6372 test questions.
 
-	\section{Dataset}
-The dataset is composed of images captured by different sensors in different moments and are about two kinds of crops: haricot and maize. Data comes from the 2019 ROSE Challenge where four teams have competed with agricultural robots. Each team has collected images of the same two crops, but in different moments and with different sensors (RGB cameras).
 
-Images in the dataset are divided into different folders based on the team that acquired the image, i.e., Bipbip, Pead, Roseau, Weedelec. For each team, we have two different sub-folders named as the type of crop present in the images, i.e., Haricot and Mais. Finally, for each crop, the captured RGB images (in the Images folder) and the corresponding ground-truth segmentations (in the Masks folder) are provided.
-	
-We decided to apply for maize from the Bipbip dataset.
 	\subsection{Images}
-Teams' images share most of the properties but differ from image size and file format. The common properties are:
+The images' properties are:
 \begin{itemize}
-
-\item{color space: RGB;}
-\item{classes:}
-\begin{itemize}
-\item{crop;}
-\item{weed;}
-\item{background;}
+\item{Color space: RGB;}
+\item{image size: 400x700 pixels;}
+\item{file Format: png;}
 \end{itemize}
-\item{number of Training images (per team per crop): 90;}
-\item{number of Test\_Dev images (per team per crop): 15;}
-\item{number of Test images (per team per crop): 20.}
-\end{itemize}
-	\subsection{Masks}
-Masks folders contain the ground-truth segmentation for each corresponding (having the same name) image in the Images folder. They have the same exact properties of the Images set apart from the fact that they all have the same file format: PNG.
-
-In each mask, classes are represented by different colors. The dictionary which allows assigning a label to each corresponding color is provided in the starting\_kit, as well as the example script in which we show how to transform RGB masks into target masks. In the following, the provided dictionary ('RGBtoTarget.txt' in the starting kit):
-			\begin{itemize}
-				\item RGB: 0 0 0 - Target 0 (background);
-				\item RGB: 254 124 18 - Target 0 (background);
-				\item RGB: 255 255 255 - Target 1 (crop);
-				\item RGB: 216 67 82 - Target 2 (weed).
-			\end{itemize}
+	\subsection{Answers}
+The set of the possible answers is static and made of 58 possible answers belonging to 3 possible categories: 'yes/no' answers, 'counting' answers (from 0 to 5) and 'other' (e.g., colors, objects, ecc.). In the following the labels associated to each answer:
 
 	\subsection{Data augmentation}
-We have performed data augmentation in order to increase the dataset dimension. Some of the parameters used to perform the transformations are: rotation, zoom, horizontal/vertical shift and flip.
-
-	\subsection{Tiling}
-During the training, we have experienced many issues with the RAM and VRAM. This happened both with Colab Pro and local tests. We decided not to downsize the dataset images, since the quality loss would have been too much, so we performed image tiling. In the final version, we splitted the original images into 8 tiles per image.
-
+We have not performed data augmentation. The dataset dimension was big enough for the complexity of our model and performing augmentation would have required a lot of time to adapt all the question/answer couples. Furthermore, we could do it just on the images and not on the answers set.
 	\section{Validation set}
 
 No automatic validation set is provided. This means that a subset of the training set must be used to perform validation.
@@ -142,9 +112,10 @@ In our case, we parametrized the number of training images to be moved into the 
 
 
 	\section{Test set}
-Test\_Dev images are provided without any ground-truth mask. Participants are required to provide the segmentations for the Test\_Dev images by submitting the solution with the correct submission format. 
+The test set is provided as a set of 6372 (image-question) couples, without the attached answers. Participants are required to provide the answers for the test images by submitting the solution with the correct submission format.
+
 	\section{Evaluation}
-Submissions are evaluated on the mean Intersection over Union (IoU) obtained on the two classes, crop and weed. IoU is computed for each target class (crop and weed) separately, by considering prediction and ground truth as binary masks. Then, the final IoU is computed by averaging the two.
+Submissions are evaluated on Multiclass Accuracy, which is simply the average number of observations with the correct label.
 
 	%end of first chapter
 
